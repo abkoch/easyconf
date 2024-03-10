@@ -1,16 +1,16 @@
-# Easy configuration #
+# Easy configuration (local_easyconf) #
 
-This plugins allows administrators to easily configure settings in table 'config' and
-table 'config_plugins'. It may be run via GUI or via CLI. The latter makes it possible
+This plugins allows administrators to easily configure settings in the tables `config` and
+`config_plugins`. It may be run via GUI or via CLI. The latter makes it possible
 to easily roll out standard configuration for several moodles.
 
-If you want to set additional configurations in other tables, you may extend lib.php
-or ask me (koch (at) posteo.de).
+If you want to set additional configurations in other tables, you may extend `lib.php`
+or ask me (kocha (at) posteo.de).
 
 ## Requirements ##
-The package PHP-YAML is required. You may install it e.g. by
+The PHP package YAML is required. You may install it e.g. by
 
-   $ apt install php8.1-yaml
+    $ apt install php8.1-yaml
 
 ## History ##
 2024/03/10 local_easyconf 0.1 (2024031000): Initial release
@@ -42,10 +42,11 @@ to complete the installation from the command line.
 
 First enter configuration in YAML syntax. It's possible to enter it in a text field
 via GUI or in a file called configuration.yml (recommended if a lot of configurations
-are needed). A sample configuration file is configiration.yml.sample.
+are needed). A sample configuration file is `configuration.yml.sample`.
 
 The general YAML syntax is:
----
+
+```---
 config:
   name_1:
     value: value_1
@@ -71,18 +72,22 @@ config_plugins:
       value: value_2
     name_3:
       state: absent
+```
 
-Field value is mandatory, fields mode and state are optional.
+Field `value` is mandatory if an entry should be added or updated. Field `mode`
+is optional Field `state` is used to delete entries.
 
-If mode=nooverwrite is used, the value will only be set if an entry for name
-in the table "config" or for name and plugin in the table "config_plugins"
+If `mode=nooverwrite` is used, the value will only be set if an entry for name
+in the table `config` or for name and plugin in the table `config_plugins`
 is not present in the database.
 
-If state=absent is used, the entry will be deleted.
+If `state=absent` is used, the entry will be deleted.
 
-To run this plugin via CLI enter
+To apply the configuration via CLI run
 
-   $ sudo -u <user> <path-to-php-binary> <moodle-dirroot>/local/easyconf/run_easyconf.php
+    $ sudo -u <user> <path-to-php-binary> <moodle-dirroot>/local/easyconf/run_easyconf.php
+
+After an execution via CLI or GUI you should purge the caches.
 
 ## License ##
 
