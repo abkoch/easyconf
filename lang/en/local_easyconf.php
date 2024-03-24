@@ -52,5 +52,7 @@ $string['set_delete'] = 'Delete in {$a->table} for entry with {$a->condition}...
 $string['set_insert'] = 'Insert into {$a->table}: {$a->entry}...';
 $string['set_nooverwrite'] = 'Ignore in {$a->table}: entry for {$a->condition} already exists and nooverwrite is active...';
 $string['set_update'] = 'Update in {$a->table} for {$a->condition}: {$a->entry} ...';
+$string['db_read_error'] = 'Reading in database: {$a->sql}... Error';
+$string['db_write_error'] = 'Writing in database {$a->entry}... Error';
 $string['pluginname'] = 'Easy Configuration';
 $string['privacy:null_reason'] = 'This plugin does not store or process any personal data.';

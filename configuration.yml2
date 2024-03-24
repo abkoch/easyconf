@@ -1,0 +1,24 @@
+---
+config:
+  - lang: de
+    params:
+        mode: nooverwrite
+  - lang: en
+config_plugins:
+  - bigbluebutton:
+       version: 20221010
+       params:
+           mode: nooverwrite
+  - bigbluebutton:
+       version: 20221010
+       params:
+           mode: nooverwrite
+modules:
+  - name: bigbluebuttonbn
+    visible: 0
+    params:
+      condition: name="bigbluebuttonbn"
+  - name: bigbluebuttonbn
+    visible: 1
+    params:
+      condition: name="bigbluebuttonbn"

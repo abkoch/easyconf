@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_easyconf';
-$plugin->release = '0.2';
-$plugin->version = 2024032400;
+$plugin->release = '0.2.1';
+$plugin->version = 2024032401;
 $plugin->requires = 2022112800;
 $plugin->maturity = MATURITY_STABLE;

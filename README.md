@@ -13,14 +13,15 @@ The PHP package YAML is required. You may install it e.g. by
     $ apt install php8.1-yaml
 
 ## History ##
-2024/03/24 local_easyconf 0.2 (2024032400): Improvements 
-- New YML syntax to support any table:
+2024/03/24 local_easyconf 0.2.1 (2024032401): Encancements
+- Added error handling
+2024/03/24 local_easyconf 0.2 (2024032400): Encancements
+- New YML syntax to support an table:
 -- Universal method for setting records in any table
 -- Special methods for setting records in tables `{config}` and `{config_plugins}`
 - Check for valid session key
 - Automatically purge caches
 - Adaptions in language files
-
 2024/03/10 local_easyconf 0.1 (2024031000): Initial release
 
 ## Installing via uploaded ZIP file ##

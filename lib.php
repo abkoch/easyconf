@@ -152,73 +152,102 @@ class local_easyconf {
 
         $sql = "SELECT * FROM {" . $table . "} WHERE " . $condition;
 
-        $record = $DB->get_record_sql($sql);
+        try {
 
-        $result = false;
+            $record = $DB->get_record_sql($sql);
 
-        $entrylangstring = '';
+        } catch (Exception $e) {
 
-        if (isset($record->id) && isset($state) && $state == 'absent') {
-            $action = 'delete';
+            $easyconfout .= get_string('db_read_error', 'local_easyconf', ['sql' => $sql]) . "\n";
 
-            if ($DB->delete_records($table, ['id' => $record->id])) {
-                $result = true;
-            }
-
-        } else if (!isset($record->id) && isset($state) && $state == 'absent') {
-            $action = 'absent';
-            $resultentry = true;
-
-        } else if (isset($record->id) && isset($mode) && $mode == 'nooverwrite') {
-            $action = 'nooverwrite';
-            $result = true;
-
-        } else if (isset($record->id)) {
-            $action = 'update';
-
-            foreach ($entry as $key => $value) {
-                if (isset($record->$key)) {
-                    $record->$key = $value;
-                }
-            }
-
-            $entrylangstring = serialize($record);
-
-            if ($DB->update_record($table, $record, false)) {
-
-                $result = true;
-            }
-
-        } else {
-            $action = 'insert';
-            $recordnew = new stdClass();
-            $recordnew->id = $record->id;
-            foreach ($entry as $key => $value) {
-                if (!is_array($value)) {
-                    $recordnew->$key = $value;
-                }
-            }
-
-            $entrylangstring = serialize($recordnew);
-
-            if ($DB->insert_record($table, $recordnew, false)) {
-                $result = true;
-            }
+            return false;
 
         }
 
-        $easyconfout .= get_string('set_' . $action, 'local_easyconf',
-                                   ['table' => $table, 'entry' => $entrylangstring, 'condition' => $condition]) . ' ';
+        try {
 
-        if ($result) {
-            $easyconfout .= get_string('setsuccess', 'local_easyconf');
-        } else {
-            $easyconfout .= get_string('seterror', 'local_easyconf');
+            $result = false;
+
+            $entrylangstring = '';
+
+            if (isset($record->id) && isset($state) && $state == 'absent') {
+                $action = 'delete';
+
+                if ($DB->delete_records($table, ['id' => $record->id])) {
+                    $result = true;
+                }
+
+            } else if (!isset($record->id) && isset($state) && $state == 'absent') {
+                $action = 'absent';
+                $resultentry = true;
+
+            } else if (isset($record->id) && isset($mode) && $mode == 'nooverwrite') {
+                $action = 'nooverwrite';
+                $result = true;
+
+            } else if (isset($record->id)) {
+                $action = 'update';
+
+                foreach ($entry as $key => $value) {
+                    if (isset($record->$key)) {
+                        $record->$key = $value;
+                    }
+                }
+
+                $entrylangstring = serialize($record);
+
+                if ($DB->update_record($table, $record, false)) {
+
+                    $result = true;
+                }
+
+            } else {
+                $action = 'insert';
+                $recordnew = new stdClass();
+                $recordnew->id = $record->id;
+                foreach ($entry as $key => $value) {
+                    if (!is_array($value)) {
+                        $recordnew->$key = $value;
+                    }
+                }
+
+                $entrylangstring = serialize($recordnew);
+
+                if ($DB->insert_record($table, $recordnew, false)) {
+                    $result = true;
+                }
+
+            }
+
+            $easyconfout .= get_string('set_' . $action, 'local_easyconf',
+                                       ['table' => $table, 'entry' => $entrylangstring, 'condition' => $condition]) . ' ';
+
+            if ($result) {
+                $easyconfout .= get_string('setsuccess', 'local_easyconf');
+            } else {
+                $easyconfout .= get_string('seterror', 'local_easyconf');
+            }
+
+            $easyconfout .= "\n";
+
+            return $result;
+
+        } catch (Exception $e) {
+
+            if (isset($record)) {
+                $entry = serialize($record);
+            } else if (isset($recordnew)) {
+                $entry = serialize($recordnew);
+            } else {
+                $entry = '';
+            }
+
+            $easyconfout .= get_string('db_write_error', 'local_easyconf', ['entry' => $entry]) . "\n";
+
+            return false;
+
         }
 
-        $easyconfout .= "\n";
-
-        return $result;
     }
 
 }
