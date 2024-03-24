@@ -56,11 +56,11 @@ class local_easyconf {
                 if (!call_user_func(['local_easyconf', 'set_' . $table], $config)) {
                     $return = false;
                 }
-	        } else {
+            } else {
                 if (!call_user_func(['local_easyconf', 'set'], $config, $table)) {
                     $return = false;
                 }
-	        }
+            }
         }
 
         purge_caches();
@@ -76,7 +76,7 @@ class local_easyconf {
         $table = 'config';
         $specialkeys = ['name', 'params'];
 
-        for ($i=0; $i<count($entries); $i++) {
+        for ($i = 0; $i < count($entries); $i++) {
             foreach ($entries[$i] as $key => $value) {
                 if (!in_array($key, $specialkeys)) {
                     $entries[$i]['name'] = $key;
@@ -84,10 +84,10 @@ class local_easyconf {
                     unset($entries[$i][$key]);
                 }
             }
-            $entries[$i]['params']['condition'] = 'name="' . $entries[$i]['name'] . '"';            
+            $entries[$i]['params']['condition'] = 'name="' . $entries[$i]['name'] . '"';
         }
 
-        return local_easyconf::set($entries, $table);
+        return self::set($entries, $table);
 
     }
 
@@ -99,27 +99,27 @@ class local_easyconf {
         $table = 'config_plugins';
         $specialkeys = ['name', 'params'];
 
-        $entries_new = Array();
+        $entriesnew = [];
 
-        for ($i=0; $i<count($entries); $i++) {
-            $entries_new[$i]['plugin'] = 'bbb';
+        for ($i = 0; $i < count($entries); $i++) {
+            $entriesnew[$i]['plugin'] = 'bbb';
 
             foreach ($entries[$i] as $plugin => $values) { // There should be only one element present.
-                $entries_new[$i]['plugin'] = $plugin;
+                $entriesnew[$i]['plugin'] = $plugin;
 
                 foreach ($values as $key => $value) {
                     if (!in_array($key, $specialkeys)) {
-                        $entries_new[$i]['name'] = $key;
-                        $entries_new[$i]['value'] = $value;
+                        $entriesnew[$i]['name'] = $key;
+                        $entriesnew[$i]['value'] = $value;
                     } else {
-                        $entries_new[$i][$key] = $value;
+                        $entriesnew[$i][$key] = $value;
                     }
                 }
-                $entries_new[$i]['params']['condition'] = 'plugin="' . $plugin . '" AND name="' . $entries_new[$i]['name'] . '"';
+                $entriesnew[$i]['params']['condition'] = 'plugin="' . $plugin . '" AND name="' . $entriesnew[$i]['name'] . '"';
             }
         }
 
-        return local_easyconf::set($entries_new, $table);
+        return self::set($entriesnew, $table);
 
     }
 
@@ -127,17 +127,17 @@ class local_easyconf {
     public static function set($entries, $table) {
         global $easyconfout;
 
-	    $result = true;
+        $result = true;
 
-	    for ($i=0; $i<count($entries); $i++) {
+        for ($i = 0; $i < count($entries); $i++) {
 
-            if (!local_easyconf::setentry($entries[$i], $table)) {
+            if (!self::setentry($entries[$i], $table)) {
                 $result = false;
             }
 
-	    }
+        }
 
-       return $result;
+        return $result;
     }
 
     // Default function to set an entry.
@@ -156,7 +156,7 @@ class local_easyconf {
 
         $result = false;
 
-        $entry_lang_string = '';
+        $entrylangstring = '';
 
         if (isset($record->id) && isset($state) && $state == 'absent') {
             $action = 'delete';
@@ -182,7 +182,7 @@ class local_easyconf {
                 }
             }
 
-            $entry_lang_string = serialize($record);
+            $entrylangstring = serialize($record);
 
             if ($DB->update_record($table, $record, false)) {
 
@@ -199,7 +199,7 @@ class local_easyconf {
                 }
             }
 
-            $entry_lang_string = serialize($record_new);
+            $entrylangstring = serialize($recordnew);
 
             if ($DB->insert_record($table, $recordnew, false)) {
                 $result = true;
@@ -208,7 +208,7 @@ class local_easyconf {
         }
 
         $easyconfout .= get_string('set_' . $action, 'local_easyconf',
-                                   ['table' => $table, 'entry' => $entry_lang_string, 'condition' => $condition]) . ' ';
+                                   ['table' => $table, 'entry' => $entrylangstring, 'condition' => $condition]) . ' ';
 
         if ($result) {
             $easyconfout .= get_string('setsuccess', 'local_easyconf');
@@ -219,6 +219,6 @@ class local_easyconf {
         $easyconfout .= "\n";
 
         return $result;
-   }
+    }
 
 }
