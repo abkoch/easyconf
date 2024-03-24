@@ -53,36 +53,110 @@ class local_easyconf {
 
         foreach ($configuration as $table => $config) {
             if (method_exists('local_easyconf', 'set_' . $table)) {
-                foreach ($config as $name => $value) {
-                    if (!call_user_func(['local_easyconf', 'set_' . $table], [$name => $value])) {
-                        $return = false;
-                    }
+                if (!call_user_func(['local_easyconf', 'set_' . $table], $config)) {
+                    $return = false;
                 }
-            }
+	        } else {
+                if (!call_user_func(['local_easyconf', 'set'], $config, $table)) {
+                    $return = false;
+                }
+	        }
         }
+
+        purge_caches();
+
         return $return;
     }
 
     // Function to set values for table 'config'.
-    public static function set_config($entry) {
-        global $DB, $easyconfout;
-        $params = ['mode', 'state'];
+    public static function set_config($entries) {
+
+        global $easyconfout;
+
         $table = 'config';
-        $name = array_keys($entry)[0];
-        $value = $entry[$name]['value'];
+        $specialkeys = ['name', 'params'];
+
+        for ($i=0; $i<count($entries); $i++) {
+            foreach ($entries[$i] as $key => $value) {
+                if (!in_array($key, $specialkeys)) {
+                    $entries[$i]['name'] = $key;
+                    $entries[$i]['value'] = $value;
+                    unset($entries[$i][$key]);
+                }
+            }
+            $entries[$i]['params']['condition'] = 'name="' . $entries[$i]['name'] . '"';            
+        }
+
+        return local_easyconf::set($entries, $table);
+
+    }
+
+    // Function to set values for table 'config_plugins'.
+    public static function set_config_plugins($entries) {
+
+        global $easyconfout;
+
+        $table = 'config_plugins';
+        $specialkeys = ['name', 'params'];
+
+        $entries_new = Array();
+
+        for ($i=0; $i<count($entries); $i++) {
+            $entries_new[$i]['plugin'] = 'bbb';
+
+            foreach ($entries[$i] as $plugin => $values) { // There should be only one element present.
+                $entries_new[$i]['plugin'] = $plugin;
+
+                foreach ($values as $key => $value) {
+                    if (!in_array($key, $specialkeys)) {
+                        $entries_new[$i]['name'] = $key;
+                        $entries_new[$i]['value'] = $value;
+                    } else {
+                        $entries_new[$i][$key] = $value;
+                    }
+                }
+                $entries_new[$i]['params']['condition'] = 'plugin="' . $plugin . '" AND name="' . $entries_new[$i]['name'] . '"';
+            }
+        }
+
+        return local_easyconf::set($entries_new, $table);
+
+    }
+
+    // Default function to set values for different tables.
+    public static function set($entries, $table) {
+        global $easyconfout;
+
+	    $result = true;
+
+	    for ($i=0; $i<count($entries); $i++) {
+
+            if (!local_easyconf::setentry($entries[$i], $table)) {
+                $result = false;
+            }
+
+	    }
+
+       return $result;
+    }
+
+    // Default function to set an entry.
+    public static function setentry($entry, $table) {
+        global $DB, $easyconfout;
+
+        $params = ['condition', 'mode', 'state'];
 
         foreach ($params as $param) {
-            $$param = isset($entry[$name][$param]) ? $entry[$name][$param] : '';
+                $$param = isset($entry['params'][$param]) ? $entry['params'][$param] : '';
         }
 
-        if ($state != 'absent') {
-            $value = $entry[$name]['value'];
-        }
+        $sql = "SELECT * FROM {" . $table . "} WHERE " . $condition;
 
-        $sql = "SELECT id,value FROM {" . $table . "} WHERE name='" . $name . "'";
         $record = $DB->get_record_sql($sql);
 
         $result = false;
+
+        $entry_lang_string = '';
 
         if (isset($record->id) && isset($state) && $state == 'absent') {
             $action = 'delete';
@@ -93,7 +167,7 @@ class local_easyconf {
 
         } else if (!isset($record->id) && isset($state) && $state == 'absent') {
             $action = 'absent';
-            $result = true;
+            $resultentry = true;
 
         } else if (isset($record->id) && isset($mode) && $mode == 'nooverwrite') {
             $action = 'nooverwrite';
@@ -102,21 +176,39 @@ class local_easyconf {
         } else if (isset($record->id)) {
             $action = 'update';
 
-            if ($DB->set_field($table, "value", $value, ["id" => $record->id])) {
+            foreach ($entry as $key => $value) {
+                if (isset($record->$key)) {
+                    $record->$key = $value;
+                }
+            }
+
+            $entry_lang_string = serialize($record);
+
+            if ($DB->update_record($table, $record, false)) {
+
                 $result = true;
             }
+
         } else {
             $action = 'insert';
             $recordnew = new stdClass();
-            $recordnew->name   = $name;
-            $recordnew->value  = $value;
+            $recordnew->id = $record->id;
+            foreach ($entry as $key => $value) {
+                if (!is_array($value)) {
+                    $recordnew->$key = $value;
+                }
+            }
+
+            $entry_lang_string = serialize($record_new);
 
             if ($DB->insert_record($table, $recordnew, false)) {
                 $result = true;
             }
+
         }
 
-        $easyconfout .= get_string('set_config_' . $action, 'local_easyconf', ['name' => $name, 'value' => $value]) . ' ';
+        $easyconfout .= get_string('set_' . $action, 'local_easyconf',
+                                   ['table' => $table, 'entry' => $entry_lang_string, 'condition' => $condition]) . ' ';
 
         if ($result) {
             $easyconfout .= get_string('setsuccess', 'local_easyconf');
@@ -127,88 +219,6 @@ class local_easyconf {
         $easyconfout .= "\n";
 
         return $result;
-    }
-
-    // Function to set values for table 'config_plugins'.
-    public static function set_config_plugins($entry) {
-        global $easyconfout, $DB;
-        $params = ['mode', 'state'];
-        $table  = 'config_plugins';
-
-        $result = true;
-
-        foreach ($entry as $plugin => $values) {
-
-            foreach ($values as $name => $entry) {
-
-                foreach ($params as $param) {
-                    $$param = isset($entry[$param]) ? $entry[$param] : '';
-                }
-
-                if ($state != 'absent') {
-                     $value = $entry['value'];
-                }
-
-                $sql = "SELECT id,value FROM {" . $table . "} WHERE plugin='" . $plugin . "' AND name='" . $name . "'";
-                $record = $DB->get_record_sql($sql);
-
-                $resultentry = false;
-
-                if (isset($record->id) && isset($state) && $state == 'absent') {
-                    $action = 'delete';
-
-                    if ($DB->delete_records($table, ['id' => $record->id])) {
-                        $resultentry = true;
-                    }
-
-                } else if (!isset($record->id) && isset($state) && $state == 'absent') {
-                    $action = 'absent';
-                    $resultentry = true;
-
-                } else if (isset($record->id) && isset($mode) && $mode == 'nooverwrite') {
-                    $action = 'nooverwrite';
-                    $resultentry = true;
-
-                } else if (isset($record->id)) {
-                    $action = 'update';
-
-                    if ($DB->set_field($table, "value", $value, ["id" => $record->id])) {
-                        $resultentry = true;
-                    }
-
-                } else {
-                    $action = 'insert';
-
-                    $recordnew = new stdClass();
-                    $recordnew->plugin = $plugin;
-                    $recordnew->name   = $name;
-                    $recordnew->value  = $name;
-
-                    if ($DB->insert_record($table, $recordnew, false)) {
-                        $resultentry = true;
-                    }
-                }
-
-                if (!$resultentry) {
-                    $result = false;
-                }
-
-                $easyconfout .= get_string('set_config_plugins_' . $action, 'local_easyconf',
-                                ['plugin' => $plugin, 'name' => $name, 'value' => $value]) . ' ';
-
-                if ($resultentry) {
-                    $easyconfout .= get_string('setsuccess', 'local_easyconf');
-                } else {
-                    $easyconfout .= get_string('seterror', 'local_easyconf');
-                }
-
-                $easyconfout .= "\n";
-
-            }
-
-        }
-
-        return $result;
-    }
+   }
 
 }

@@ -45,11 +45,10 @@ if ($hassiteconfig) {
 
     if ($ADMIN->fulltree) {
 
-        $result = '<p>' . get_string('run_caches', 'local_easyconf') . '</p>'
-                  . '<a href="?section=local_easyconf_settings&execute=1" class="btn btn-secondary">'
+        $result = '<a href="?section=local_easyconf_settings&execute=1&sesskey=' . sesskey() . '" class="btn btn-secondary">'
                   . get_string('execute', 'local_easyconf') . '</a>';
 
-        if (optional_param('execute', 0, PARAM_INT)) {
+        if (optional_param('execute', 0, PARAM_INT) && confirm_sesskey()) {
             global $easyconfout;
             $resultrun  = local_easyconf::run();
             $resultruntext = $resultrun ? get_string('run_success', 'local_easyconf') : get_string('run_error', 'local_easyconf');

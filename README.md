@@ -13,6 +13,13 @@ The PHP package YAML is required. You may install it e.g. by
     $ apt install php8.1-yaml
 
 ## History ##
+2024/03/24 local_easyconf 0.2 (2024032400): Encancements
+- New YML syntax to support an table:
+-- Universal method for setting records in any table
+-- Special methods for setting records in tables `{config}` and `{config_plugins}`
+- Check for valid session key
+- Automatically purge caches
+- Adaptions in language files
 2024/03/10 local_easyconf 0.1 (2024031000): Initial release
 
 ## Installing via uploaded ZIP file ##
@@ -42,46 +49,62 @@ to complete the installation from the command line.
 
 First enter configuration in YAML syntax. It's possible to enter it in a text field
 via GUI or in a file called configuration.yml (recommended if a lot of configurations
-are needed). A sample configuration file is `configuration.yml.sample`.
+are needed). A sample configuration file is `configiration.yml.sample`.
 
 The general YAML syntax is:
 
-```---
+```
+---
 config:
-  name_1:
-    value: value_1
-  name_2:
-    value: value_2
-    mode: nooverwrite
-  name_3:
-    state: absent
+  - name1: value1
+  - name2: value2
+    params:
+        mode: nooverwrite
+  - name3: value3
+    params:
+        state: absent
 config_plugins:
-  plugin_1:
-    name_1:
-      value: value_1
-      mode: nooverwrite
-    name_2:
-      value: value_2
-    name_3:
-      state: absent
-  plugin_2:
-    name_1:
-      value: value_1
-      mode: nooverwrite
-    name_2:
-      value: value_2
-    name_3:
-      state: absent
+  - plugin1:
+       name1: value1
+  - plugin2:
+        name2: value2
+        params:
+            mode: nooverwrite
+  - plugin3:
+        name3: value3
+        params:
+            state: absent
+table1:
+  - field1: value1
+    field2: value2
+    params:
+        condition: fieldA="valueB"
+  - field1: value1
+    field2: value2
+    field3: value3
+    params:
+        condition: fieldA="valueB" AND fieldC="valueD"
+        mode: nooverwrite
+table2:
+  - field1: value1
+    field2: value2
+    params:
+        condition: fieldA="valueB"
+  - field1: value1
+    field2: value2
+    field3: value3
+    params:
+        condition: fieldA="valueB" AND fieldC="valueD"
+        mode: nooverwrite
 ```
 
-Field `value` is mandatory if an entry should be added or updated. Field `mode`
-is optional Field `state` is used to delete entries.
+The general syntax is shown by the `table1` and `table2` entries.
+At least one pair `file: value` and `params['condition']` are mandatory.
+If `mode=nooverwrite` is used, records will only be overwritten if there's no one present matching the condition.
+If `state=absent` is used, the entry matching the condition will be deleted. So type your conditions with care.
 
-If `mode=nooverwrite` is used, the value will only be set if an entry for name
-in the table `config` or for name and plugin in the table `config_plugins`
-is not present in the database.
-
-If `state=absent` is used, the entry will be deleted.
+For tables `{config}` and `{config_plugins}` the syntax is eased and differing as no condition is needed.
+Take a look at the examples above.
 
 To apply the configuration via CLI run
 
