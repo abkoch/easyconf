@@ -1,26 +1,42 @@
 ---
 config:
-  name_1:
-    value: value_1
-  name_2:
-    value: value_2
-    mode: nooverwrite
-  name_3:
-    state: absent
+  - name1: value1
+  - name2: value2
+    params:
+        mode: nooverwrite
+  - name3: value3
+    params:
+        state: absent
 config_plugins:
-  plugin_1:
-    name_1:
-      value: value_1
-      mode: nooverwrite
-    name_2:
-      value: value_2
-    name_3:
-      state: absent
-  plugin_2:
-    name_1:
-      value: value_1
-      mode: nooverwrite
-    name_2:
-      value: value_2
-    name_3:
-      state: absent
+  - plugin1:
+       name1: value1
+  - plugin2:
+        name2: value2
+        params:
+            mode: nooverwrite
+  - plugin3:
+        name3: value3
+        params:
+            state: absent
+table1:
+  - field1: value1
+    field2: value2
+    params:
+        condition: fieldA="valueB"
+  - field1: value1
+    field2: value2
+    field3: value3
+    params:
+        condition: fieldA="valueB" AND fieldC="valueD"
+        mode: nooverwrite
+table2:
+  - field1: value1
+    field2: value2
+    params:
+        condition: fieldA="valueB"
+  - field1: value1
+    field2: value2
+    field3: value3
+    params:
+        condition: fieldA="valueB" AND fieldC="valueD"
+        mode: nooverwrite
