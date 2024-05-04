@@ -28,12 +28,18 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/local/easyconf/lib.php');
 
 if (!class_exists('local_easyconf_admin_setting_configtextarea')) {
-    class local_easyconf_admin_setting_configtextarea extends admin_setting_configtextarea {
+        /**
+         * Class for checking YAML syntax 
+         */
+	class local_easyconf_admin_setting_configtextarea extends admin_setting_configtextarea {
+        /**
+         * Method to validate YAML syntax of configuration 
+         */
         public function validate($data) {
-            if (yaml_parse($data)) {
+            if ($data == '' || yaml_parse($data)) {
                 return true;
             }
-            return get_string('yml_error', 'local_easyconf');
+            return get_string('yaml_error', 'local_easyconf');
         }
     }
 }

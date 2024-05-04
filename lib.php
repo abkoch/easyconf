@@ -23,13 +23,20 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * Class that holds all logic, especially for performing SQL queries
+ */
 class local_easyconf {
-    // Method to check permissions.
+    /**
+     * Method to check permissions
+     */
     public static function has_permission() {
         return has_capability('local/easyconf:execute', context_system::instance());
     }
 
-    // Method to run perfom main task.
+    /**
+     * Method to run main task
+     */
     public static function run() {
         global $CFG, $easyconfout;
 
@@ -68,7 +75,9 @@ class local_easyconf {
         return $return;
     }
 
-    // Function to set values for table 'config'.
+    /**
+     * Method to delete, edit and set entries in table 'config'
+     */
     public static function set_config($entries) {
 
         global $easyconfout;
@@ -91,7 +100,9 @@ class local_easyconf {
 
     }
 
-    // Function to set values for table 'config_plugins'.
+    /**
+     * Method to delete, edit and set entries in table 'config_plugins' 
+     */
     public static function set_config_plugins($entries) {
 
         global $easyconfout;
@@ -123,7 +134,9 @@ class local_easyconf {
 
     }
 
-    // Default function to set values for different tables.
+    /**
+     * Default method to delete, edit and set entries in tables
+     */
     public static function set($entries, $table) {
         global $easyconfout;
 
@@ -140,7 +153,9 @@ class local_easyconf {
         return $result;
     }
 
-    // Default function to set an entry.
+    /**
+     * Default method to manipulate a single entry in a table
+     */
     public static function setentry($entry, $table) {
         global $DB, $easyconfout;
 
@@ -194,7 +209,7 @@ class local_easyconf {
                     }
                 }
 
-                $entrylangstring = serialize($record);
+                $entrylangstring = print_r($record, true);
 
                 if ($DB->update_record($table, $record, false)) {
 
@@ -211,7 +226,7 @@ class local_easyconf {
                     }
                 }
 
-                $entrylangstring = serialize($recordnew);
+                $entrylangstring = print_r($recordnew, true);
 
                 if ($DB->insert_record($table, $recordnew, false)) {
                     $result = true;
@@ -235,9 +250,9 @@ class local_easyconf {
         } catch (Exception $e) {
 
             if (isset($record)) {
-                $entry = serialize($record);
+                $entry = print_r($record, true);
             } else if (isset($recordnew)) {
-                $entry = serialize($recordnew);
+                $entry = print_r($recordnew, true);
             } else {
                 $entry = '';
             }
