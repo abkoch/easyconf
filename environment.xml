@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<COMPATIBILITY_MATRIX>
+     <PLUGIN name="local_easyconf">
+         <PHP_EXTENSIONS>
+             <PHP_EXTENSION name="yaml" level="required">
+                 <FEEDBACK>
+                     <ON_ERROR message="install_phpyamlrequired" plugin="local_easyconf"/>
+                 </FEEDBACK>
+             </PHP_EXTENSION>
+         </PHP>
+     </PLUGIN>
+</COMPATIBILITY_MATRIX>

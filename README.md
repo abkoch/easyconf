@@ -1,21 +1,32 @@
 # Easy configuration (local_easyconf) #
 
-This plugins allows administrators to easily configure settings in the tables `config` and
-`config_plugins`. It may be run via GUI or via CLI. The latter makes it possible
+This plugins allows administrators to easily configure settings in the tables `{config}` and
+`{config_plugins}`. It may be run via GUI or via CLI. The latter makes it possible
 to easily roll out standard configuration for several moodles.
 
-If you want to set additional configurations in other tables, you may extend `lib.php`
-or ask me (kocha (at) posteo.de).
+If you require addional features feel free to contact me: kocha (at) posteo.de
 
 ## Requirements ##
 The PHP package YAML is required. You may install it e.g. by
 
     $ apt install php8.1-yaml
 
+## Riscs ##
+Before running a YAML configuration be sure you really know what you do.
+It is possible to change every entry in your moodle database.
+That means you may delete and edit data irrevocably.
+Perform a database backup before if you are unsure.
+Usage is on your own risc. No liability.
+
 ## History ##
-2024/03/24 local_easyconf 0.2.1 (2024032401): Encancements
+2024/05/04 local_easyconf 0.3 (2024050400): Enhancements
+- Added `db/access.php` to check permissions
+- Added `environment.xml` to ensure that php-yaml is installed
+- Changed output from JSON using `serialize(.)` to prettier print using `pring_r(.)`
+- Fixed some typos, enhanced coding style and documentation
+2024/03/24 local_easyconf 0.2.1 (2024032401): Enhancements
 - Added error handling
-2024/03/24 local_easyconf 0.2 (2024032400): Encancements
+2024/03/24 local_easyconf 0.2 (2024032400): Enhancements
 - New YML syntax to support an table:
 -- Universal method for setting records in any table
 -- Special methods for setting records in tables `{config}` and `{config_plugins}`
@@ -100,8 +111,8 @@ table2:
         mode: nooverwrite
 ```
 
-The general syntax is shown by the `table1` and `table2` entries.
-At least one pair `file: value` and `params['condition']` are mandatory.
+The general syntax is shown by the `{table1}` and `{table2}` entries.
+At least one pair `file: value` and `params['condition']` is mandatory.
 If `mode=nooverwrite` is used, records will only be overwritten if there's no one present matching the condition.
 If `state=absent` is used, the entry matching the condition will be deleted. So type your conditions with care.
 
@@ -110,7 +121,7 @@ Take a look at the examples above.
 
 To apply the configuration via CLI run
 
-    $ sudo -u <user> <path-to-php-binary> <moodle-dirroot>/local/easyconf/run_easyconf.php
+    $ sudo -u <user> <path-to-php-binary> <moodle-dirroot>/local/easyconf/cli/run_easyconf.php
 
 After an execution via CLI or GUI you should purge the caches.
 

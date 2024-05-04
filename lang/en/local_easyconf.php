@@ -25,6 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['install_phpyamlrequired'] = 'Installing the PHP YAML library is required for local_easyconf.';
 $string['settings'] = 'Settings';
 $string['execute'] = 'Run';
 $string['enabled'] = 'Aktiviert';
@@ -44,7 +45,7 @@ $string['yes'] = 'Yes';
 $string['no'] = 'No';
 $string['save'] = 'Save changes';
 $string['set']  = 'Set configuration';
-$string['yml_error'] = 'No valid YAML';
+$string['yaml_error'] = 'No valid YAML';
 $string['setsuccess'] = 'Success';
 $string['seterror'] = 'Error';
 $string['set_absent'] = 'Ignore deletion in {$a->table} for {$a->condition} because not present...';
