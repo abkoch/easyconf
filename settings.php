@@ -51,24 +51,28 @@ if ($hassiteconfig) {
 
     if ($ADMIN->fulltree) {
 
-        $result = '<a href="?section=local_easyconf_settings&execute=1&sesskey=' . sesskey() . '" class="btn btn-secondary">'
+        if (local_easyconf::has_permission()) {
+
+            $result = '<a href="?section=local_easyconf_settings&execute=1&sesskey=' . sesskey() . '" class="btn btn-secondary">'
                   . get_string('execute', 'local_easyconf') . '</a>';
 
-        if (optional_param('execute', 0, PARAM_INT) && confirm_sesskey()) {
-            global $easyconfout;
-            $resultrun  = local_easyconf::run();
-            $resultruntext = $resultrun ? get_string('run_success', 'local_easyconf') : get_string('run_error', 'local_easyconf');
-            $result = '<pre>' . $easyconfout . $resultruntext . '</pre>' . $result;
-        }
+            if (optional_param('execute', 0, PARAM_INT) && confirm_sesskey()) {
+                global $easyconfout;
+                $resultrun  = local_easyconf::run();
+                $resultruntext = $resultrun ? get_string('run_success', 'local_easyconf') : get_string('run_error', 'local_easyconf');
+                $result = '<pre>' . $easyconfout . "\n" . $resultruntext . '</pre>' . $result;
+            }
 
-        $setting = new admin_setting_heading('execute', get_string('execute', 'local_easyconf'), $result);
-        $settings->add($setting);
+            $setting = new admin_setting_heading('execute', get_string('execute', 'local_easyconf'), $result);
+            $settings->add($setting);
+
+	}
 
         $setting = new admin_setting_heading('settings', get_string('settings', 'local_easyconf'), '');
         $settings->add($setting);
 
         $setting = new admin_setting_configselect('local_easyconf/enabled', get_string('enabled', 'local_easyconf'),
-                    '', 'yes',
+                    get_string('enabled_descr', 'local_easyconf'), 'yes',
                     ['yes' => get_string('yes', 'local_easyconf'), 'no' => get_string('no', 'local_easyconf')]);
         $setting->set_updatedcallback('theme_reset_all_caches');
         $settings->add($setting);

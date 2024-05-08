@@ -19,6 +19,12 @@ Perform a database backup before if you are unsure.
 Usage is on your own risc. No liability.
 
 ## History ##
+2024/05/08 local_easyconf 0.3.1 (2024050401): Bug fixing (see CONTRIB-9516) and hardening, including:
+- Added `has_permission()` checks
+- Added and fixed lang strings
+- Added try-catch-blocks to catch configuration errors
+- Fixed some typos in code
+- Removed remains of development
 2024/05/04 local_easyconf 0.3 (2024050400): Enhancements
 - Added `db/access.php` to check permissions
 - Added `environment.xml` to ensure that php-yaml is installed

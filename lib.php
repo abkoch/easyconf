@@ -42,37 +42,47 @@ class local_easyconf {
 
         $easyconfout = '';
 
-        if (is_file($CFG->dirroot . '/local/easyconf/configuration.yml')) {
-            $configuration = yaml_parse_file($CFG->dirroot . '/local/easyconf/configuration.yml');
-            if (!$configuration) {
-                $easyconfout = get_string('configuration_file_error', 'local_easyconf');
-                return false;
-            }
-        } else {
-            $configuration = yaml_parse(get_config('local_easyconf', 'configuration'));
-            if (!$configuration) {
-                $easyconfout = get_string('configuration_field_error', 'local_easyconf');
-                return false;
-            }
-        }
+        try {
 
-        $return = true;
-
-        foreach ($configuration as $table => $config) {
-            if (method_exists('local_easyconf', 'set_' . $table)) {
-                if (!call_user_func(['local_easyconf', 'set_' . $table], $config)) {
-                    $return = false;
+            if (is_file($CFG->dirroot . '/local/easyconf/configuration.yml')) {
+                $configuration = yaml_parse_file($CFG->dirroot . '/local/easyconf/configuration.yml');
+                if (!$configuration) {
+                    $easyconfout = get_string('configuration_file_error', 'local_easyconf');
+                    return false;
                 }
             } else {
-                if (!call_user_func(['local_easyconf', 'set'], $config, $table)) {
-                    $return = false;
+                $configuration = yaml_parse(get_config('local_easyconf', 'configuration'));
+                if (!$configuration) {
+                    $easyconfout = get_string('configuration_field_error', 'local_easyconf');
+                    return false;
                 }
             }
+
+            $return = true;
+
+            foreach ($configuration as $table => $config) {
+                if (method_exists('local_easyconf', 'set_' . $table)) {
+                    if (!call_user_func(['local_easyconf', 'set_' . $table], $config)) {
+                        $return = false;
+                    }
+                } else {
+                    if (!call_user_func(['local_easyconf', 'set'], $config, $table)) {
+                        $return = false;
+                    }
+                }
+            }
+
+        } catch (Exception $e) {
+
+            $easyconfout = get_string('configuration_error', 'local_easyconf');
+            return false;
+
         }
 
         purge_caches();
 
         return $return;
+
     }
 
     /**
@@ -82,11 +92,21 @@ class local_easyconf {
 
         global $easyconfout;
 
+        if (!is_array($entries)) {
+            throw new Exception (get_string('configuration_error', 'local_easyconf'));
+        }
+
         $table = 'config';
         $specialkeys = ['name', 'params'];
 
         for ($i = 0; $i < count($entries); $i++) {
+
+            if (!isset($entries[$i]) || !is_array($entries[$i])) {
+                throw new Exception (get_string('configuration_error', 'local_easyconf'));
+            }
+
             foreach ($entries[$i] as $key => $value) {
+
                 if (!in_array($key, $specialkeys)) {
                     $entries[$i]['name'] = $key;
                     $entries[$i]['value'] = $value;
@@ -107,6 +127,10 @@ class local_easyconf {
 
         global $easyconfout;
 
+        if (!is_array($entries)) {
+            throw new Exception (get_string('configuration_error', 'local_easyconf'));
+        }
+
         $table = 'config_plugins';
         $specialkeys = ['name', 'params'];
 
@@ -118,7 +142,16 @@ class local_easyconf {
             foreach ($entries[$i] as $plugin => $values) { // There should be only one element present.
                 $entriesnew[$i]['plugin'] = $plugin;
 
+                if (!isset($entries[$i]) || !is_array($entries[$i])) {
+                    throw new Exception (get_string('configuration_error', 'local_easyconf'));
+                }
+
                 foreach ($values as $key => $value) {
+
+                    if (!is_array($values)) {
+                        throw new Exception (get_string('configuration_error', 'local_easyconf'));
+                    }
+
                     if (!in_array($key, $specialkeys)) {
                         $entriesnew[$i]['name'] = $key;
                         $entriesnew[$i]['value'] = $value;
@@ -139,6 +172,10 @@ class local_easyconf {
      */
     public static function set($entries, $table) {
         global $easyconfout;
+
+        if (!is_array($entries)) {
+            throw new Exception (get_string('configuration_error', 'local_easyconf'));
+        }
 
         $result = true;
 
@@ -203,6 +240,10 @@ class local_easyconf {
             } else if (isset($record->id)) {
                 $action = 'update';
 
+                if (!is_array($entry)) {
+                    throw new Exception (get_string('configuration_error', 'local_easyconf'));
+                }
+
                 foreach ($entry as $key => $value) {
                     if (isset($record->$key)) {
                         $record->$key = $value;
@@ -220,6 +261,11 @@ class local_easyconf {
                 $action = 'insert';
                 $recordnew = new stdClass();
                 $recordnew->id = $record->id;
+
+                if (!is_array($entry)) {
+                    throw new Exception (get_string('configuration_error', 'local_easyconf'));
+                }
+
                 foreach ($entry as $key => $value) {
                     if (!is_array($value)) {
                         $recordnew->$key = $value;
