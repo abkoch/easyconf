@@ -32,11 +32,17 @@ cli_heading(get_string('cli_run', 'local_easyconf')." ($CFG->wwwroot)");
 
 global $easyconfout;
 
+\core\cron::setup_user();
+
 if (get_config('local_easyconf', 'enabled') != 'yes') {
     die (get_string('disabled_text', 'local_easyconf'));
 }
 
-$resultrun = local_easyconf::run();
+if (local_easyconf::has_permission()) {
+    $resultrun = local_easyconf::run();
+} else {
+    die (get_string('no_permission', 'local_easyconf'));
+}
 
 echo $easyconfout;
 
